@@ -1,4 +1,4 @@
-from my_module import LinearRegression, Graph
+from LinearRegression_module import LinearRegression, Graph
 
 x_list =[70.38, 223.56, 132.48, 182.16 ,204.93, 105.57]
 y_list=[10.35, 35.19, 22.77, 16.56, 28.98, 10.35]
