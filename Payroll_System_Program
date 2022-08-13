@@ -1,0 +1,25 @@
+#final_exam_program.py 
+import final_exam_module as fm
+
+employee_list = []
+
+#display headerIv
+fm.clear_screen()
+fm.header() 
+addAnother =True
+while addAnother: 
+    employee = fm.Employee()
+    employee.collectInputs()
+    employee_list.append(employee)
+    addAnother = (input("continue? [Y/N]" )[:1] == 'Y')
+    if addAnother == 'N':
+        addAnother = False
+
+#Clear out inputs after one employee info get inputed
+fm.clear_screen()
+
+
+#Display the list
+fm.header() 
+for (i,employee) in enumerate(employee_list):
+    employee.print_record(i == 0)
