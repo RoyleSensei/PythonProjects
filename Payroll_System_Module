@@ -1,0 +1,140 @@
+#final_exam_module
+import os
+
+#setup the clear_screen method
+def clear_screen():
+    if(os.name == 'posix'):
+        os.system('clear')  # mac
+    else:
+        os.system('cls')  # windows
+
+
+#setup the header method 
+def header():
+    width = 15
+    line_format = '{:<'+str(width)+'} {:>'+str(width)+'} {:>'+str(width)+'} {:>'+str(width)+'} {:>'+str(width)+'} {:>'+str(width)+'} {:>'+str(width)+'}'
+    print("***************************************************************************************************************")
+    print("                                            IvanZ COMPANY PAYROLL                                              ")
+    print("***************************************************************************************************************")
+
+class Employee():
+
+    __federal_rate = .3
+    __medicare_rate = .2
+    __social_security_rate = .1
+    __nj_rate = .07
+    __ny_rate = .08
+    __married_rate = .05
+    __single_rate = .1
+    
+    def parse(self, typ, ans): #check typ & determine ans
+        try:
+            if typ is str:
+                ans = str(ans)
+            elif typ is float:
+                ans = float(ans)
+            return ans
+        except:
+            return None
+
+
+    def setAttribute(self, attr2prompt): #create input method
+        for att in attr2prompt:
+            msg, typ, dict = attr2prompt[att] #structure of attr2prompt
+
+            ans = self.parse(typ, input(msg)) #question message + check type
+            while ans is None:
+                ans = self.parse(typ, input("Wrong type! Try again. " + msg))
+
+            if dict: #if dict is not none
+                self.setAttribute(dict[ans[:1]])
+            else:
+                setattr(self, att, ans) #self.name = ans
+
+
+    def collectInputs(self):    
+        #create a attribute & prompt dictionary   
+        attr2prompt = {
+            "name": ("What is your name?: ", str, None),
+            "state": ("Which state you live in (NY or NJ)?: ", str,  None),
+            "marriedStatus": ("Marital Status(Married or Single)?: ", str, None),
+            "compensationType": ("Salary or Hourly Wage?(S/W): ", str, {
+                "S": {"annualSalary": ("Your Annual Salary: ", float,  None)},
+                "W": {"hourlyWage": ("Your Hourly Wage: ", float, None), "hoursWorked": ("Your Working Hours: ", float, None)}
+            })
+        }
+        self.setAttribute(attr2prompt)
+
+
+    # use to calculate net pay
+    def calculate_weekly_net(self):
+            
+        #Calculate the a person's weekly gross earn
+        if hasattr(self, 'annualSalary'): 
+            self.weeklyGross = self.annualSalary/52
+        else: 
+            if self.hoursWorked > 40:
+                self.weeklyGross = 40*self.hourlyWage + (self.hoursWorked - 40)*(self.hourlyWage * 1.5)
+            else:
+                self.weeklyGross = self.hoursWorked*self.hourlyWage
+
+
+        #Differentiate the tax based on the locations
+        if self.state == 'NY':
+            self.stateTax = self.weeklyGross * self.__ny_rate 
+        else:
+            self.stateTax = self.weeklyGross * self.__nj_rate
+
+        #Differentiate the tax based on the marital statue
+        if self.marriedStatus == 'Married':
+            self.maritalTax = self.weeklyGross * self.__married_rate
+        else:
+            self.maritalTax =self.weeklyGross * self.__single_rate
+
+        #Calculate the general tax deductable parts
+        self.federalFee = self.weeklyGross * self.__federal_rate
+        self.medicareFee = self.weeklyGross * self.__medicare_rate 
+        self.socFee = self.weeklyGross * self.__social_security_rate
+
+        #Calculate the weekly net pay of the person
+        self.weeklyNet = self.weeklyGross - self.federalFee - self.medicareFee - self.socFee - self.stateTax - self.maritalTax
+            
+
+    #use to PRINT an employe row of data
+    def print_record(self, printHeader=False):
+        self.calculate_weekly_net()
+
+        # TABLE Header
+        #width
+        width = 15
+        
+        #line_format ='{:<15} {:>15} {:>15} {:>15} {:>15}'
+        line_format = '{:<'+str(width)+'} {:>'+str(width)+'} {:>'+str(width)+'} {:>'+str(width)+'} {:>'+str(width)+'} {:>'+str(width)+'} {:>'+str(width)+'}'
+  
+        if printHeader:
+            #print('{:<15} {:>15} {:>15} {:>15} {:>15}'.("EMPLOYEE", "GROSS","FEDERAL", "MEDICARE", "SOC SECURITY", "STATE", "NET")))
+            print(line_format.format("EMPLOYEE", "GROSS","FEDERAL", "MEDICARE", "SOC SECURITY", "STATE", "NET"))
+            #print('{:<15} {:>15} {:>15} {:>15} {:>15}'.format("-" * width,"-" * width,"-" * width, "-" * width, "-" * width))
+            print(line_format.format("-" * width, "-" * width, "-" * width, "-" * width, "-" * width, "-" * width, "-" * width))
+                   
+                  
+        self.weeklyGross = round(self.weeklyGross,2)
+        self.federalFee = round(self.federalFee,2)
+        self.medicareFee = round(self.medicareFee,2)
+        self.socFee = round(self.socFee,2)
+        self.stateTax = round(self.stateTax,2)
+        self.maritalTax = round(self.maritalTax,2)
+        self.weeklyNet = round(self.weeklyNet,2)
+            
+        #print('{:<15} {:>15} {:>15} {:>15} {:>15}'.format(EMPLOYEE,GROSS,FEDERAL, MEDICARE, SOC SECURITY, STATE, NET))
+        print(line_format.format(
+                self.name, 
+                self.weeklyGross, 
+                self.federalFee, 
+                self.medicareFee, 
+                self.socFee,
+                self.stateTax,
+                self.weeklyNet
+                ))
+    
+ 
